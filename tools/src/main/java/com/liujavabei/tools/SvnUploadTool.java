@@ -4,6 +4,7 @@ import java.io.*;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.zip.ZipOutputStream;
 
 public class SvnUploadTool {
     private static String targetPrePath = "C:\\Users\\liuhe\\Desktop\\上线\\";
@@ -15,11 +16,15 @@ public class SvnUploadTool {
     private static boolean created = false;
 
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws Exception {
         //提交的文件目录
-        String localFilesPath = "D:/TaiYue/HeBei/code/uflow6.0/src-ccm/com/ultra/message/http/HttpClientUtil.java\n" +
-                "D:/TaiYue/HeBei/code/uflow6.0/src-ccm/com/ultra/message/http/HttpTool.java\n" +
-                "D:/TaiYue/HeBei/code/uflow6.0/src-core/com/ultra/uflow/core/process/controller/ProcessController.java\n";
+        String localFilesPath = "D:/TaiYue/HeBei/code/uflow6.0/src-ccm/com/ultra/uflow/extend/job/autoSubmitJob.java\n" +
+                "D:/TaiYue/HeBei/code/uflow6.0/src-core/com/ultra/uflow/core/process/dao/ProcessCustomerFilterDao.java\n" +
+                "D:/TaiYue/HeBei/code/uflow6.0/src-core/com/ultra/uflow/core/process/dao/ProcessInfoDao.java\n" +
+                "D:/TaiYue/HeBei/code/uflow6.0/src-core/com/ultra/uflow/core/process/dao/ProcessUnsolvedDao.java\n" +
+                "D:/TaiYue/HeBei/code/uflow6.0/src-core/com/ultra/uflow/core/process/model/ProcessCustomerFilter.java\n" +
+                "D:/TaiYue/HeBei/code/uflow6.0/src-core/com/ultra/uflow/core/process/model/ProcessUnsolved.java\n" +
+                "D:/TaiYue/HeBei/code/uflow6.0/src-core/com/ultra/uflow/core/process/service/ProcessService.java";
         localFilesPath = localFilesPath.replace("\\", "/");
         String[] files = localFilesPath.split("\n");
         for (String file : files) {
@@ -31,6 +36,9 @@ public class SvnUploadTool {
         }
         //写入目录
         writeCatalog();
+        FileOutputStream fos1 = new FileOutputStream(new File("C:\\Users\\liuhe\\Desktop\\上线\\上线.zip"));
+        ZipTool.toZip("C:\\Users\\liuhe\\Desktop\\上线\\uflow", fos1, true);
+        //ZipTool.compress(new File(targetPrePath),new ZipOutputStream(new FileOutputStream("C:\\Users\\liuhe\\Desktop\\哈哈")),"压缩",true);
     }
 
     private static void writeCatalog() throws IOException {
@@ -64,7 +72,8 @@ public class SvnUploadTool {
             //提取文件基本路径及名称
             String srcBaseFolders = m.group(2);
             String fileName = m.group(3);
-            pathList.add("/" + srcBaseFolders + fileName);
+            String nameByPath = getProjectNameByPath(filePath);
+            pathList.add(nameByPath+":/" + srcBaseFolders + fileName);
             String finalPath = targetPrePath + getProjectNameByPath(filePath);
             copy(new File(filePath), new File(finalPath + "/" + m.group(3)));
         }
@@ -115,7 +124,7 @@ public class SvnUploadTool {
             //创建输出目录
             String nameByPath = getProjectNameByPath(filePath);
             if (!created) {
-                createTargetCatalog();
+                createTargetCatalog(nameByPath);
             }
             //判断class文件所在目录里有没有内部类生成的class文件，如果有，连同这些文件一并复制
             File finalSrcFolders = new File(area + srcBaseFolders);
@@ -132,14 +141,13 @@ public class SvnUploadTool {
         }
     }
 
-    private static void createTargetCatalog() {
-        File finalOutputFolder = new File(targetPrePath);
+    private static void createTargetCatalog(String projectName) {
+        File finalOutputFolder = new File(targetPrePath+projectName);
         if (!finalOutputFolder.exists()) {
-            boolean isSucceed = finalOutputFolder.mkdirs();
-            System.out.printf("创建输出目录%s成功?%s%n", targetPrePath, isSucceed);
+            FileTool.createFolder(targetPrePath+projectName);
         } else {
             //如果存在，递归删除里面的文件
-            clearFiles(new File(targetPrePath));
+            clearFiles(new File(targetPrePath+projectName));
         }
         created = true;
     }
@@ -196,7 +204,7 @@ public class SvnUploadTool {
     }
 
     private static String getProjectNameByPath(String path) {
-        if (path.contains("uflow6")) {
+        if (path.contains("java")||path.contains("uflow")) {
             return "uflow";
         } else if (path.contains("uflowUI")) {
             return "uflowUI";

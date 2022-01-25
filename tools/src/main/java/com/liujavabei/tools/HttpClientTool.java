@@ -5,12 +5,15 @@ import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.protocol.HTTP;
 import org.apache.http.util.EntityUtils;
 
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -18,12 +21,10 @@ import java.util.Map;
 
 public class HttpClientTool {
     private static final String url = "http://10.216.42.105:8081/W_LCGL/WpmCheckOrderInterface/createWpmCheckOrder.do";
-    private static final String checkOrder = "{\"typeSolu\":\"0\",\"soluName\":\"集中投诉参数实施方案\",\"orderSource\":\"集中投诉\",\"sourceSoluId\":\"ID-0601-20211122-03338\",\"userCName\":\"wy_jzts\",\"dist\":\"保定市\",\"prod\":\"华为\",\"updateSize\":\"单站\",\"moduType\":\"普通参数模板\",\"startTime\":\"2021-12-18 15:13:00\",\"expectTime\":\"2021-12-31 15:13:00\",\"paise\":\"haobosen\",\"paiseMobile\":\"13111111111\",\"requirement\":\"分公司\",\"oneLevelReason\":\"投诉处理\",\"twoLevelReason\":\"普通投诉处理\",\"soluReason\":\"xxx\",\"uploadExcel\":\"\",\"netType\":\"TDD\"}";
-    private static final String checkOrderList = "[{\"listDist\":\"保定市\",\"listProd\":\"华为\",\"neType\":\"ECELL\",\"neName\":\"460-00-667180-195\",\"paraObjectName\":\"NRCELLHOEUTRANMEAGRP\",\"paraOMCName\":\"COVBASEDHOB1RSRPTHLD\",\"paraGroup\":\"\",\"paraValue\":\"-121\",\"paraNewValue\":\"-103\",\"paraCName\":\"基于覆盖的切换B1RSRP门限\",\"enbName\":\"BDZHZ3462涿州第二中心医院-HLH\",\"operateType\":\"MOD\",\"cellName\":\"BDZHZ3462涿州第二中心医院-HLH-0\"}]";
+    private static final String checkOrder = "{\"moduType\":\"普通参数模板\",\"requirement\":\"分公司\",\"orderSource\":\"集中投诉\",\"expectTime\":\"2021-12-25 14:32:00\",\"userCName\":\"wy_jzts\",\"paiseMobile\":\"18633005558\",\"typeSolu\":\"0\",\"updateSize\":\"单站\",\"soluReason\":\"参数调整测试工单\",\"startTime\":\"2021-12-24 14:32:00\",\"oneLevelReason\":\"投诉处理\",\"netType\":\"FDD\",\"soluName\":\"集中投诉参数实施方案\",\"paise\":\"郝柏森\",\"twoLevelReason\":\"紧急投诉处理\",\"sourceSoluId\":\"ID-0601-20211223-00279\",\"prod\":\"华为\",\"dist\":\"邢台市\"}";
+    private static final String checkOrderList = "[{\"paraOMCName\":\"COVINTERFREQA2RSRPTHLD\",\"paraCName\":\"基于覆盖的异频A2RSRP触发门限\",\"neName\":\"460-00-1087444-2\",\"paraNewValue\":\"-105\",\"operateType\":\"MOD\",\"enbName\":\"XTSHH8168沙河杜村HB-HWH\",\"neType\":\"ECELL\",\"paraObjectName\":\"NRCELLINTERFHOMEAGRP\",\"listProd\":\"华为\",\"paraGroup\":\"0\",\"listDist\":\"邢台市\",\"paraValue\":\"-99\"},{\"paraOMCName\":\"MAXTRANSMITPOWER\",\"paraCName\":\"最大发射功率\",\"neName\":\"460-00-1087444-2\",\"paraNewValue\":\"400\",\"operateType\":\"MOD\",\"enbName\":\"XTSHH8168沙河杜村HB-HWH\",\"neType\":\"ECELL\",\"paraObjectName\":\"NRDUCELLTRP\",\"listProd\":\"华为\",\"paraGroup\":\"0\",\"listDist\":\"邢台市\",\"paraValue\":\"390\"},{\"paraOMCName\":\"TILT\",\"paraCName\":\"倾角(度)\",\"neName\":\"460-00-1087444-4\",\"paraNewValue\":\"3\",\"operateType\":\"MOD\",\"enbName\":\"XTSHH8168沙河杜村HB-HWH\",\"neType\":\"ECELL\",\"paraObjectName\":\"NRDUCELLTRPBEAM\",\"listProd\":\"华为\",\"paraGroup\":\"0\",\"listDist\":\"邢台市\",\"paraValue\":\"255\"},{\"paraOMCName\":\"PSCELLA2RSRPTHLD\",\"paraCName\":\"PSCellA2事件RSRP门限(毫瓦分贝) \",\"neName\":\"460-00-1087444-5\",\"paraNewValue\":\"-110\",\"operateType\":\"MOD\",\"enbName\":\"XTSHH8168沙河杜村HB-HWH\",\"neType\":\"ECELL\",\"paraObjectName\":\"NRCELLNSADCCONFIG\",\"listProd\":\"华为\",\"paraGroup\":\"0\",\"listDist\":\"邢台市\",\"paraValue\":\"-108\"}]";
 
-    public static void main(String[] args) throws UnsupportedEncodingException {
-        String checkOrder = "{\"typeSolu\":\"0\",\"soluName\":\"集中投诉参数实施方案\",\"orderSource\":\"集中投诉\",\"sourceSoluId\":\"ID-0601-20211122-03338\",\"userCName\":\"wy_jzts\",\"dist\":\"保定市\",\"prod\":\"华为\",\"updateSize\":\"单站\",\"moduType\":\"普通参数模板\",\"startTime\":\"2021-12-18 15:13:00\",\"expectTime\":\"2021-12-31 15:13:00\",\"paise\":\"haobosen\",\"paiseMobile\":\"13111111111\",\"requirement\":\"分公司\",\"oneLevelReason\":\"投诉处理\",\"twoLevelReason\":\"普通投诉处理\",\"soluReason\":\"xxx\",\"uploadExcel\":\"\",\"netType\":\"TDD\"}";
-        String checkOrderList = "[{\"listDist\":\"保定市\",\"listProd\":\"华为\",\"neType\":\"ECELL\",\"neName\":\"460-00-667180-195\",\"paraObjectName\":\"NRCELLHOEUTRANMEAGRP\",\"paraOMCName\":\"COVBASEDHOB1RSRPTHLD\",\"paraGroup\":\"\",\"paraValue\":\"-121\",\"paraNewValue\":\"-103\",\"paraCName\":\"基于覆盖的切换B1RSRP门限\",\"enbName\":\"BDZHZ3462涿州第二中心医院-HLH\",\"operateType\":\"MOD\",\"cellName\":\"BDZHZ3462涿州第二中心医院-HLH-0\"}]";
+    public static void main(String[] args) {
         Map<String, String> paramMap = new HashMap<String, String>();
         paramMap.put("checkOrder", checkOrder);
         paramMap.put("checkOrderList", checkOrderList);
@@ -45,17 +46,16 @@ public class HttpClientTool {
                 String v = mapdata.get(k);// value
                 nameValuePairs.add(new BasicNameValuePair(k, v));
             }
-            httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
-            System.out.println("nameValuePairs:" + nameValuePairs);
+            httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs, "UTF-8"));
+            System.out.printf("参数nameValuePairs：%s", nameValuePairs);
             // 执行http请求
             response = httpClient.execute(httpPost);
             // 获得http响应体
             HttpEntity entity = response.getEntity();
-            System.out.println("entity:" + entity);
             if (entity != null) {
                 // 响应的结果
                 String content = EntityUtils.toString(entity, "UTF-8");
-                System.out.println("content:" + content);
+                System.out.printf("响应结果:%s", content);
                 return content;
             }
         } catch (Exception e) {
